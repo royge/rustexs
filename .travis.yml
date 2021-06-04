@@ -1,0 +1,5 @@
+language: rust
+script:
+  - cd tempconvert && cargo test --verbose --workspace
+  - cd fibo && cargo test --verbose --workspace
+  - cd xmasdays && cargo test --verbose --workspace
