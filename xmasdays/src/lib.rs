@@ -16,7 +16,7 @@ pub fn lyrics() -> String {
         "twelfth",
     ];
 
-    let gifts = [
+    let all_gifts = [
         "A partridge in a pear tree",
         "Two turtle doves",
         "Three French hens",
@@ -31,38 +31,50 @@ pub fn lyrics() -> String {
         "Twelve drummers drumming",
     ];
 
-    let mut count = 0;
+    let mut day_count = 0;
 
     for day in days.iter() {
         lyrics.push_str("On the ");
         lyrics.push_str(day);
         lyrics.push_str(" day of Christmas my true love gave to me\n");
 
-        let lines = &gifts[..count+1];
-        let mut c = 0;
+        let gifts = &all_gifts[..day_count+1];
+        let mut gift_count = 0;
 
-        for l in lines.iter().rev() {
-            if count > 0 && count == c {
+        for gift in gifts.iter().rev() {
+            if is_1st_gift(day_count, gift_count) {
                 lyrics.push_str(" and\n");
             }
 
-            lyrics.push_str(l);
+            lyrics.push_str(gift);
 
-            if count > 1 && c < count - 1 {
+            if is_before_2nd_gift(day_count, gift_count) {
                 lyrics.push_str("\n");
             }
 
-            c += 1;
+            gift_count += 1;
         }
 
-        count += 1;
+        day_count += 1;
 
-        if count < days.len() {
+        if is_next_day(day_count, days.len()) {
             lyrics.push_str("\n\n");
         }
     }
 
     return lyrics;
+}
+
+fn is_1st_gift(day_count:usize, gift_count:usize) -> bool {
+    day_count > 0 && day_count == gift_count
+}
+
+fn is_next_day(day_count:usize, total_days: usize) -> bool {
+    day_count < total_days
+}
+
+fn is_before_2nd_gift(day_count:usize, gift_count:usize) -> bool {
+    day_count > 1 && gift_count < day_count - 1
 }
 
 #[cfg(test)]
