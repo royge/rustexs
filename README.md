@@ -1,5 +1,5 @@
 # Rust Exercises
 
-[![Build Status](https://travis-ci.org/royge/rustexs.svg?branch=main)](https://travis-ci.org/royge/rustexs)
+[![Tests](https://github.com/royge/rustexs/actions/workflows/rust.yml/badge.svg)](https://github.com/royge/rustexs/actions/workflows/rust.yml)
 
 I hope you won't judge me. But I don't care anyway. :-)
