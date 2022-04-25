@@ -16,13 +16,19 @@ fn mean(list: &Vec<i32>) -> f64 {
 }
 
 fn median(mut list: Vec<i32>) -> f64 {
+    // Unstable sort is fine for me because I prefer speed.
     list.sort_unstable();
+
     let len = list.len();
     let mid = len / 2;
+
+    let mut median = f64::from(list[mid]);
+
     if len % 2 == 0 {
-        return f64::from(&list[mid - 1] + &list[mid]) / 2.0;
+        median = f64::from(&list[mid - 1] + &list[mid]) / 2.0;
     }
-    f64::from(list[mid])
+
+    median
 }
 
 #[cfg(test)]
