@@ -5,7 +5,7 @@ fn main() {
 fn mean(list: &Vec<i32>) -> f64 {
     let mut total: i32 = 0;
 
-    // NOTE: count is being because I struggled to convert usize to f64.
+    // NOTE: count is being used because I struggled to convert usize to f64.
     let mut count: i32 = 0;
     for v in list {
         total += *v;
