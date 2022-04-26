@@ -25,5 +25,5 @@ jobs:
     - name: Run test #4
       run: cd xmasdays && cargo test --verbose --workspace
     - name: Run test #5
-      run: cd mathm3 && cargo test --verbose --workspace
+      run: cd measures && cargo test --verbose --workspace
 
