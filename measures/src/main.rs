@@ -1,7 +1,30 @@
 use std::collections::HashMap;
 
 fn main() {
-    println!("Hello, world!");
+    println!("Measures of central tendency!");
+}
+
+struct CentralTendency {
+    inputs: Vec<i32>,
+}
+
+impl CentralTendency {
+    pub fn new(mut inputs: Vec<i32>) -> Self {
+        inputs.sort_unstable();
+        Self { inputs }
+    }
+
+    pub fn mean(&self) -> f64 {
+        mean(&self.inputs)
+    }
+
+    pub fn median(&self) -> f64 {
+        median(&self.inputs)
+    }
+
+    pub fn mode(&self) -> Vec<i32> {
+        mode(&self.inputs)
+    }
 }
 
 fn mean(list: &Vec<i32>) -> f64 {
@@ -17,10 +40,7 @@ fn mean(list: &Vec<i32>) -> f64 {
     f64::from(total) / f64::from(count)
 }
 
-fn median(mut list: Vec<i32>) -> f64 {
-    // Unstable sort is fine for me because I prefer speed.
-    list.sort_unstable();
-
+fn median(list: &Vec<i32>) -> f64 {
     let len = list.len();
     let mid = len / 2;
 
@@ -40,7 +60,7 @@ fn mode(list: &Vec<i32>) -> Vec<i32> {
         *count += 1
     }
 
-    let mut mode:Vec<i32> = Vec::new();
+    let mut mode: Vec<i32> = Vec::new();
 
     let mut max = 1;
     for (k, v) in &map {
@@ -67,9 +87,10 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let v = vec![1, 2, 4, 7, 5, 6, 8, 3];
+        let mut v = vec![1, 2, 4, 7, 5, 6, 8, 3];
+        v.sort_unstable();
         assert_eq!(mean(&v), 4.5);
-        assert_eq!(median(v), 4.5);
+        assert_eq!(median(&v), 4.5);
 
         let v = vec![1, 2, 4, 7, 5, 6, 8, 3];
         assert_eq!(mode(&v), vec![1, 2, 3, 4, 5, 6, 7, 8]);
@@ -77,19 +98,28 @@ mod tests {
         let v = vec![1, 2, 2, 3, 4, 7, 5, 6, 8, 3];
         assert_eq!(mode(&v), vec![2, 3]);
 
-        let v = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+        v.sort_unstable();
         assert_eq!(mean(&v), 5.0);
-        assert_eq!(median(v), 5.0);
+        assert_eq!(median(&v), 5.0);
 
-        let v = vec![
+        let mut v = vec![
             9, 10, 12, 13, 13, 13, 15, 15, 16, 16, 18, 22, 23, 24, 24, 25,
         ];
+        v.sort_unstable();
         assert_eq!(mean(&v), 16.75);
-        assert_eq!(median(v), 15.5);
+        assert_eq!(median(&v), 15.5);
 
         let v = vec![
             9, 10, 12, 13, 13, 13, 15, 15, 16, 16, 18, 22, 23, 24, 24, 25,
         ];
         assert_eq!(mode(&v), vec![13]);
+
+        let ct = CentralTendency::new(vec![
+            9, 10, 12, 15, 15, 13, 13, 13, 16, 16, 18, 22, 23, 24, 24, 25,
+        ]);
+        assert_eq!(ct.mean(), 16.75);
+        assert_eq!(ct.median(), 15.5);
+        assert_eq!(ct.mode(), vec![13]);
     }
 }
