@@ -55,6 +55,7 @@ fn mode(list: &Vec<i32>) -> Vec<i32> {
         }
     }
 
+    mode.shrink_to_fit();
     mode.sort_unstable();
 
     mode
