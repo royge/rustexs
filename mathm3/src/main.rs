@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 fn main() {
     println!("Hello, world!");
 }
@@ -31,6 +33,33 @@ fn median(mut list: Vec<i32>) -> f64 {
     median
 }
 
+fn mode(list: &Vec<i32>) -> Vec<i32> {
+    let mut map: HashMap<i32, i32> = HashMap::new();
+    for v in list {
+        let count = map.entry(*v).or_insert(0);
+        *count += 1
+    }
+
+    let mut mode:Vec<i32> = Vec::new();
+
+    let mut max = 1;
+    for (k, v) in &map {
+        if *v == max {
+            mode.push(*k);
+        }
+        if *v > max {
+            max = *v;
+
+            mode.clear();
+            mode.push(*k);
+        }
+    }
+
+    mode.sort_unstable();
+
+    mode
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -41,6 +70,12 @@ mod tests {
         assert_eq!(mean(&v), 4.5);
         assert_eq!(median(v), 4.5);
 
+        let v = vec![1, 2, 4, 7, 5, 6, 8, 3];
+        assert_eq!(mode(&v), vec![1, 2, 3, 4, 5, 6, 7, 8]);
+
+        let v = vec![1, 2, 2, 3, 4, 7, 5, 6, 8, 3];
+        assert_eq!(mode(&v), vec![2, 3]);
+
         let v = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert_eq!(mean(&v), 5.0);
         assert_eq!(median(v), 5.0);
@@ -50,5 +85,10 @@ mod tests {
         ];
         assert_eq!(mean(&v), 16.75);
         assert_eq!(median(v), 15.5);
+
+        let v = vec![
+            9, 10, 12, 13, 13, 13, 15, 15, 16, 16, 18, 22, 23, 24, 24, 25,
+        ];
+        assert_eq!(mode(&v), vec![13]);
     }
 }
