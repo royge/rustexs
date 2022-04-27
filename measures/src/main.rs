@@ -1,7 +1,34 @@
+use std::io;
 use std::collections::HashMap;
 
 fn main() {
-    println!("Measures of central tendency!");
+    println!("Lets measures the central tendency!");
+    println!("Input a list of numbers separated by comma (Example: 1,2,3,4):");
+
+    let mut s = String::new();
+
+    io::stdin()
+        .read_line(&mut s)
+        .expect("Failed to line");
+
+    let mut inputs: Vec<i32> = Vec::new();
+    for v in s.split(',') {
+        let n = v.trim().parse::<i32>();
+        match n {
+            Ok(v) => {
+                inputs.push(v);
+            },
+            Err(_) => {},
+        }
+    }
+
+    println!("Numbers: {:?}", inputs);
+
+    let ct = CentralTendency::new(inputs);
+
+    println!("Mean: {:?}", ct.mean());
+    println!("Median: {:?}", ct.median());
+    println!("Mode: {:?}", ct.mode());
 }
 
 struct CentralTendency {
