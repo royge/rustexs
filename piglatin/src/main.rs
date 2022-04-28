@@ -69,5 +69,8 @@ mod tests {
 
         let word = String::from("百家姓");
         assert_eq!(piglatin(word), "家姓百ay");
+
+        let word = String::from("تقويم");
+        assert_eq!(piglatin(word), "قويمتay");
     }
 }
