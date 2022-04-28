@@ -14,7 +14,7 @@ fn main() {
 }
 
 fn piglatin(word: String) -> String {
-    let vowels = "aeiou";
+    let vowels = "aeiouAEIOU";
     let mut result = word;
     let mut first_letter = String::new();
     for c in result.chars() {
@@ -47,6 +47,9 @@ mod tests {
 
         let word = String::from("agent");
         assert_eq!(piglatin(word), "agenthay");
+
+        let word = String::from("Agent");
+        assert_eq!(piglatin(word), "Agenthay");
 
         let word = String::from("wonderful");
         assert_eq!(piglatin(word), "onderfulway");
