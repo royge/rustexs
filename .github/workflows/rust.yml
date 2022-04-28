@@ -17,15 +17,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Run test #1
-      run: cd tempconvert && cargo test --verbose --workspace
-    - name: Run test #2
-      run: cd tempconvert && cargo test --verbose --workspace
-    - name: Run test #3
-      run: cd fibo && cargo test --verbose --workspace
-    - name: Run test #4
-      run: cd xmasdays && cargo test --verbose --workspace
-    - name: Run test #5
-      run: cd measures && cargo test --verbose --workspace
-    - name: Run test #6
-      run: cd piglatin && cargo test --verbose --workspace
-
+      run: ./runtests.sh
