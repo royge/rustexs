@@ -14,14 +14,18 @@ fn main() {
 }
 
 fn piglatin(word: String) -> String {
-    let vowels = "aeiouAEIOU";
+    let vowels = "aeiou";
     let mut result = word;
     let mut first_letter = String::new();
     for c in result.chars() {
         first_letter = c.to_string();
         break;
     }
-    let is_vowel = vowels.contains(first_letter.as_str());
+
+    let s = first_letter.as_str();
+
+    let is_vowel = vowels.contains(s) || vowels.to_uppercase().contains(s);
+
     if is_vowel {
         result.push_str("hay")
     } else {
