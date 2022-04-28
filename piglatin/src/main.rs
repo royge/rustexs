@@ -6,9 +6,7 @@ fn main() {
 
     let mut s = String::new();
 
-    io::stdin()
-        .read_line(&mut s)
-        .expect("Failed to line");
+    io::stdin().read_line(&mut s).expect("Failed to line");
 
     let res = piglatin(String::from(s.trim()));
 
@@ -17,27 +15,22 @@ fn main() {
 
 fn piglatin(word: String) -> String {
     let vowels = "aeiou";
-    let mut result = String::new();
+    let mut result = word;
     let mut first_letter = String::new();
-    let mut is_vowel = false;
-    for c in word.chars() {
-        if c.is_alphabetic() && first_letter == "" {
-            first_letter = c.to_string();
-            is_vowel = vowels.contains(c);
-            if is_vowel {
-                result.push(c);
-            } else {
-                continue;
-            }
-        } else {
-            result.push(c);
-        }
+    for c in result.chars() {
+        first_letter = c.to_string();
+        break;
     }
+    let is_vowel = vowels.contains(first_letter.as_str());
     if is_vowel {
         result.push_str("hay")
     } else {
+        let len = first_letter.len();
+
+        first_letter.push_str("ay");
+        result.replace_range(..len, "");
+
         result.push_str(first_letter.as_str());
-        result.push_str("ay");
     }
 
     result
