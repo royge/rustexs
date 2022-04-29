@@ -11,15 +11,27 @@ fn main() {
     show_instructions();
 
     while cmd.trim() != "q" {
-        if cmd.trim() == "?" {
-            show_instructions();
-        }
         cmd.clear();
+
         io::stdin().read_line(&mut cmd).expect("Failed to line");
 
-        let (emp, dept) = process(cmd.to_string());
+        if cmd.trim() == "?" {
+            show_instructions();
+            continue;
+        }
 
-        register(&emp, &dept, &mut records);
+        if cmd.to_lowercase().starts_with("add") {
+            let (emp, dept) = process(cmd.to_string());
+
+            register(&emp, &dept, &mut records);
+            continue;
+        }
+
+        if cmd.trim() == "q" {
+            continue;
+        }
+
+        println!("Invalid command! Type `?` if you need help.")
     }
 
     println!("{:?}", records);
