@@ -1,7 +1,36 @@
 use std::collections::HashMap;
+use std::io;
 
 fn main() {
-    println!("Cool HR!");
+    println!("== Cool HR! ==");
+
+    let mut cmd = String::new();
+
+    let mut records: HashMap<String, Vec<String>> = HashMap::new();
+
+    show_instructions();
+
+    while cmd.trim() != "q" {
+        if cmd.trim() == "?" {
+            show_instructions();
+        }
+        cmd.clear();
+        io::stdin().read_line(&mut cmd).expect("Failed to line");
+
+        let (emp, dept) = process(cmd.to_string());
+
+        register(&emp, &dept, &mut records);
+    }
+
+    println!("{:?}", records);
+}
+
+fn show_instructions() {
+    println!("\nInstructions");
+    println!("============\n");
+    println!("Use `add` command to add new employee.\n\tExample: `Add Sally to Sales`.");
+    println!("Use `q` when you're done.");
+    println!("Use `?` if you need help.\n");
 }
 
 fn process(cmd: String) -> (String, String) {
@@ -19,16 +48,18 @@ fn process(cmd: String) -> (String, String) {
             dept.push_str(tok);
         }
 
-        add_emp = tok == "Add";
-        add_dept = tok == "to";
+        add_emp = tok.to_lowercase() == "add";
+        add_dept = tok.to_lowercase() == "to";
     }
 
-    (dept, emp)
+    (emp, dept)
 }
 
-fn register(emp: &String, dept: &String, coy: &mut HashMap<String, Vec<String>>) {
-    let v = coy.entry(dept.to_string()).or_insert(Vec::new());
-    v.push(emp.to_string());
+fn register(emp: &String, dept: &String, records: &mut HashMap<String, Vec<String>>) {
+    if emp != "" && dept != "" {
+        let v = records.entry(dept.to_string()).or_insert(Vec::new());
+        v.push(emp.to_string());
+    }
 }
 
 #[cfg(test)]
@@ -41,14 +72,14 @@ mod tests {
 
         assert_eq!(
             process(cmd.to_string()),
-            (String::from("Engineering"), String::from("Tim"))
+            (String::from("Tim"), String::from("Engineering"))
         );
 
         let cmd = "Add Kate to Sales";
 
         assert_eq!(
             process(cmd.to_string()),
-            (String::from("Sales"), String::from("Kate"))
+            (String::from("Kate"), String::from("Sales"))
         );
 
         let rob = "Rob";
@@ -59,22 +90,17 @@ mod tests {
         let engg = "Engineering";
         let mktg = "Marketing";
 
-        let mut coy: HashMap<String, Vec<String>> = HashMap::new();
+        let mut records: HashMap<String, Vec<String>> = HashMap::new();
         let marketers = vec![sheryl.to_string(), john.to_string(), steve.to_string()];
-        coy.insert(engg.to_string(), vec![rob.to_string()]);
-        coy.insert(mktg.to_string(), marketers);
+        records.insert(engg.to_string(), vec![rob.to_string()]);
+        records.insert(mktg.to_string(), marketers);
 
         let mut results: HashMap<String, Vec<String>> = HashMap::new();
-        let entries = [
-            (rob, engg),
-            (sheryl, mktg),
-            (john, mktg),
-            (steve, mktg),
-        ];
+        let entries = [(rob, engg), (sheryl, mktg), (john, mktg), (steve, mktg)];
         for (emp, dept) in &entries {
             register(&emp.to_string(), &dept.to_string(), &mut results);
         }
 
-        assert_eq!(results, coy)
+        assert_eq!(results, records)
     }
 }
