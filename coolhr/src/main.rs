@@ -94,22 +94,24 @@ mod tests {
             (String::from("Kate"), String::from("Sales"))
         );
 
-        let rob = "Rob";
-        let sheryl = "Sheryl";
-        let john = "John";
-        let steve = "Steve";
-
-        let engg = "Engineering";
-        let mktg = "Marketing";
-
         let mut records: HashMap<String, Vec<String>> = HashMap::new();
-        let marketers = vec![sheryl.to_string(), john.to_string(), steve.to_string()];
-        records.insert(engg.to_string(), vec![rob.to_string()]);
-        records.insert(mktg.to_string(), marketers);
+        let marketers = vec![
+            "Sheryl".to_string(),
+            "John".to_string(),
+            "Steve".to_string(),
+        ];
+        records.insert("Engineering".to_string(), vec!["Rob".to_string()]);
+        records.insert("Marketing".to_string(), marketers);
 
         let mut results: HashMap<String, Vec<String>> = HashMap::new();
-        let entries = [(rob, engg), (sheryl, mktg), (john, mktg), (steve, mktg)];
-        for (emp, dept) in &entries {
+        let commands = [
+            "Add Rob to Engineering",
+            "Add Sheryl to Marketing",
+            "Add John to Marketing",
+            "Add Steve to Marketing",
+        ];
+        for cmd in &commands {
+            let (emp, dept) = process(cmd.to_string());
             register(&emp.to_string(), &dept.to_string(), &mut results);
         }
 
