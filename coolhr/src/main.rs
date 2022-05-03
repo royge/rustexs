@@ -21,9 +21,34 @@ fn main() {
         }
 
         if cmd.to_lowercase().starts_with("add") {
-            let (emp, dept) = process(cmd.to_string());
+            let (emp, dept) = process_add(cmd.to_string());
 
             register(&emp, &dept, &mut records);
+            continue;
+        }
+
+        if cmd.to_lowercase().starts_with("list") {
+            let mut depts: Vec<&String> = Vec::new();
+            let dept = process_list(cmd.to_string());
+
+            if dept.to_lowercase() == "all" {
+                depts = records.keys().collect();
+                depts.sort();
+            } else {
+                depts.push(&dept);
+            }
+
+            for dept in depts {
+                let emps = sorted_employees(&dept, &records);
+                println!("{} Department", dept);
+                println!("================");
+                let mut count = 0;
+                for emp in emps {
+                    count += 1;
+                    println!(" {}. {}", count, emp);
+                }
+                println!("================");
+            }
             continue;
         }
 
@@ -33,19 +58,18 @@ fn main() {
 
         println!("Invalid command! Type `?` if you need help.")
     }
-
-    println!("{:?}", records);
 }
 
 fn show_instructions() {
     println!("\nInstructions");
     println!("============\n");
     println!("Use `add` command to add new employee.\n\tExample: `Add Sally to Sales`.");
+    println!("Use `list` command to show list of employees.\n\tExample: `List Sales`.");
     println!("Use `q` when you're done.");
     println!("Use `?` if you need help.\n");
 }
 
-fn process(cmd: String) -> (String, String) {
+fn process_add(cmd: String) -> (String, String) {
     let mut emp = String::new();
     let mut dept = String::new();
 
@@ -74,6 +98,35 @@ fn register(emp: &String, dept: &String, records: &mut HashMap<String, Vec<Strin
     }
 }
 
+fn process_list(cmd: String) -> String {
+    let mut dept = String::new();
+    let mut list_emp = false;
+    for tok in cmd.split_whitespace() {
+        if list_emp {
+            dept = tok.to_string();
+        }
+
+        list_emp = tok.to_lowercase() == "list";
+    }
+
+    dept
+}
+
+fn sorted_employees(dept: &String, records: &HashMap<String, Vec<String>>) -> Vec<String> {
+    match records.get(dept) {
+        Some(emps) => {
+            let mut emps_copy = emps.clone();
+            emps_copy.sort();
+
+            emps_copy
+        }
+        None => {
+            println!("{:?} not found!", dept);
+            Vec::new()
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -83,14 +136,14 @@ mod tests {
         let cmd = "Add Tim to Engineering";
 
         assert_eq!(
-            process(cmd.to_string()),
+            process_add(cmd.to_string()),
             (String::from("Tim"), String::from("Engineering"))
         );
 
         let cmd = "Add Kate to Sales";
 
         assert_eq!(
-            process(cmd.to_string()),
+            process_add(cmd.to_string()),
             (String::from("Kate"), String::from("Sales"))
         );
 
@@ -111,10 +164,27 @@ mod tests {
             "Add Steve to Marketing",
         ];
         for cmd in &commands {
-            let (emp, dept) = process(cmd.to_string());
+            let (emp, dept) = process_add(cmd.to_string());
             register(&emp.to_string(), &dept.to_string(), &mut results);
         }
 
-        assert_eq!(results, records)
+        assert_eq!(results, records);
+
+        let mut records: HashMap<String, Vec<String>> = HashMap::new();
+        let marketers = vec![
+            "Sheryl".to_string(),
+            "John".to_string(),
+            "Steve".to_string(),
+        ];
+        let engineers = vec!["Rob".to_string(), "Rus".to_string(), "Filipo".to_string()];
+        records.insert("Engineering".to_string(), engineers);
+        records.insert("Marketing".to_string(), marketers);
+
+        let cmd = String::from("List Marketing");
+        let dept = process_list(cmd);
+        assert_eq!(dept, "Marketing");
+
+        let sorted_marketers = vec!["John", "Sheryl", "Steve"];
+        assert_eq!(sorted_employees(&dept, &records), sorted_marketers);
     }
 }
