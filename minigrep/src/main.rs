@@ -10,6 +10,7 @@ fn main() {
     });
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
+    println!("\nResults:");
 
     if let Err(e) = minigrep::run(config) {
         println!("Application error: {}", e);
