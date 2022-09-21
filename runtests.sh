@@ -6,3 +6,4 @@ cd xmasdays && cargo test --verbose --workspace && cd ../
 cd measures && cargo test --verbose --workspace && cd ../
 cd piglatin && cargo test --verbose --workspace && cd ../
 cd coolhr && cargo test --verbose --workspace && cd ../
+cd minigrep && cargo test --verbose --workspace && cd ../
