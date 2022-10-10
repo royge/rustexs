@@ -8,3 +8,5 @@ cd piglatin && cargo test --verbose --workspace && cd ../
 cd coolhr && cargo test --verbose --workspace && cd ../
 cd minigrep && cargo test --verbose --workspace && cd ../
 cd cacher && cargo test --verbose --workspace && cd ../
+cd klosur && cargo test --verbose --workspace && cd ../
+cd iterators && cargo test --verbose --workspace && cd ../
