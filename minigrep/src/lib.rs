@@ -40,6 +40,7 @@ impl Config {
             Some(arg) => arg,
             None => return Err("Didn't get a filename"),
         };
+
         let case_sensitive = match args.next() {
             Some(arg) => !arg.starts_with("--case-insensitive"),
             None => true,
@@ -143,14 +144,13 @@ Trust me.";
             Config::parse(args.into_iter())
         );
 
-        // let args: &[String] = &[
-        //     "minigrep".to_string(),
-        //     "to".to_string(),
-        //     "--case-insensitive=0".to_string(),
-        // ];
-        // assert_eq!(Err("not enough arguments"), Config::parse(args.iter()));
+        let args = vec![
+            "minigrep".to_string(),
+            "to".to_string(),
+        ];
+        assert_eq!(Err("Didn't get a filename"), Config::parse(args.into_iter()));
 
-        // let args: &[String] = &["minigrep".to_string(), "to".to_string()];
-        // assert_eq!(Err("not enough arguments"), Config::parse(args.iter()));
+        let args  = vec!["minigrep".to_string()];
+        assert_eq!(Err("Didn't get a query string"), Config::parse(args.into_iter()));
     }
 }
