@@ -10,3 +10,5 @@ cd minigrep && cargo test --verbose --workspace && cd ../
 cd cacher && cargo test --verbose --workspace && cd ../
 cd klosur && cargo test --verbose --workspace && cd ../
 cd iterators && cargo test --verbose --workspace && cd ../
+cd smartptr && cargo test --verbose --workspace && cd ../
+cd smartptr && cargo run && cd ../
