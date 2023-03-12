@@ -1,6 +1,7 @@
-use crate::List::{Cons, Nil};
 use crate::rc::List::{Cons as RcCons, Nil as RcNil};
 use crate::rccell::List::{Cons as RcCellCons, Nil as RcCellNil};
+use crate::refcycle::List::{Cons as RefCyCons, Nil as RefCyNil};
+use crate::List::{Cons, Nil};
 use std::cell::RefCell;
 use std::fmt;
 use std::ops::Deref;
@@ -83,6 +84,27 @@ fn main() {
     println!("a after = {:?}", a);
     println!("b after = {:?}", b);
     println!("c after = {:?}", c);
+
+    let a = Rc::new(RefCyCons(5, RefCell::new(Rc::new(RefCyNil))));
+
+    println!("a initial ref count: {}", Rc::strong_count(&a));
+    println!("a next item: {:?}", a.tail());
+
+    let b = Rc::new(RefCyCons(10, RefCell::new(Rc::clone(&a))));
+    println!("a ref count after b creation: {}", Rc::strong_count(&a));
+    println!("b initial ref count: {}", Rc::strong_count(&b));
+    println!("b next item: {:?}", b.tail());
+
+    if let Some(link) = a.tail() {
+        *link.borrow_mut() = Rc::clone(&b)
+    }
+
+    println!("a ref count after the change: {}", Rc::strong_count(&a));
+    println!("b ref count after the change: {}", Rc::strong_count(&b));
+
+    // Uncomment the next line to see that we have a cycle;
+    // it will overflow the stack. 
+    // println!("a next item: {:?}", a.tail());
 }
 
 enum List {
@@ -100,13 +122,34 @@ mod rc {
 }
 
 mod rccell {
-    use std::rc::Rc;
     use std::cell::RefCell;
+    use std::rc::Rc;
 
     #[derive(Debug)]
     pub enum List {
         Cons(Rc<RefCell<i32>>, Rc<List>),
         Nil,
+    }
+}
+
+mod refcycle {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+    use crate::refcycle::List::{Cons, Nil};
+
+    #[derive(Debug)]
+    pub enum List {
+        Cons(i32, RefCell<Rc<List>>),
+        Nil,
+    }
+
+    impl List {
+        pub fn tail(&self) -> Option<&RefCell<Rc<List>>> {
+            match self {
+                Cons(_, item) => Some(item),
+                Nil => None,
+            }
+        }
     }
 }
 
