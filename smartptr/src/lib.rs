@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::{Rc, Weak};
+
 pub trait Messenger {
     fn send(&self, msg: &str);
 }
@@ -72,4 +75,11 @@ mod test {
 
         assert_eq!(msgr.sent_messages.borrow().len(), 1);
     }
+}
+
+#[derive(Debug)]
+pub struct Node {
+    pub value: i32,
+    pub parent: RefCell<Weak<Node>>,
+    pub children: RefCell<Vec<Rc<Node>>>,
 }
