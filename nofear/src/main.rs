@@ -1,11 +1,14 @@
 use std::sync::mpsc;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
 fn main() {
     simple();
     moved();
-    msgpassing();
+    msg_passing();
+    single_thread_mutex();
+    multi_thread_mutex();
 }
 
 fn simple() {
@@ -34,7 +37,7 @@ fn moved() {
     handle.join().unwrap();
 }
 
-fn msgpassing() {
+fn msg_passing() {
     let (tx, rx) = mpsc::channel();
 
     thread::spawn(move || {
@@ -80,4 +83,39 @@ fn msgpassing() {
     for v in rx {
         println!("{:?}", v);
     }
+}
+
+fn single_thread_mutex() {
+    let m = Mutex::new(5);
+
+    println!("initial mutex m: {:?}", m);
+
+    {
+        let mut n = m.lock().unwrap();
+        *n = 6;
+    }
+
+    println!("after mutex m: {:?}", m);
+}
+
+fn multi_thread_mutex() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut c = counter.lock().unwrap();
+
+            *c += 1;
+        });
+
+        handles.push(handle);
+    }
+
+    for h in handles {
+        h.join().unwrap();
+    }
+
+    println!("Result: {:?}", counter.lock().unwrap());
 }
