@@ -1,12 +1,12 @@
 [package]
-name = "gui"
+name = "blog"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "gui"
+name = "blog"
 path = "src/libs.rs"
 
 [dependencies]
