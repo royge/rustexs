@@ -122,6 +122,7 @@ pub mod oop {
 
 pub struct Post {
     content: String,
+    approval_count: u8,
 }
 
 impl Post {
@@ -132,7 +133,17 @@ impl Post {
     }
 
     pub fn content(&self) -> &str {
+        if self.approval_count < 2 {
+            return "";
+        }
+
         &self.content
+    }
+
+    pub fn approve(&mut self) -> &Post {
+        self.approval_count += 1;
+
+        self
     }
 }
 
@@ -159,6 +170,13 @@ pub struct PendingReviewPost {
 impl PendingReviewPost {
     pub fn approve(self) -> Post {
         Post {
+            content: self.content,
+            approval_count: 1,
+        }
+    }
+
+    pub fn reject(self) -> DraftPost {
+        DraftPost {
             content: self.content,
         }
     }

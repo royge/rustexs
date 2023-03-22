@@ -11,10 +11,19 @@ fn rust() {
     post.add_text("I ate salad today.");
 
     let post = post.request_review();
+    let post = post.reject();
+
+    let post = post.request_review();
+
+    // 1st approval
+    let mut post = post.approve();
+
+    // 2nd approval
     let post = post.approve();
 
     assert_eq!("I ate salad today.", post.content());
 }
+
 fn oop() {
     let mut post = Post::new();
 
