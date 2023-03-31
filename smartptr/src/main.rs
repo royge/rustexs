@@ -10,7 +10,7 @@ use std::rc::{Rc, Weak};
 
 fn main() {
     let b = Box::new(5);
-    println!("b = {}", b);
+    assert_eq!(5, *b);
 
     let c = Cons(1, Box::new(Cons(2, Box::new(Cons(3, Box::new(Nil))))));
     let _d = Cons(4, Box::new(c));
@@ -49,29 +49,18 @@ fn main() {
         1,
         Rc::new(RcCons(2, Rc::new(RcCons(3, Rc::new(RcNil))))),
     ));
-    println!("ref count of c = {}", Rc::strong_count(&c));
+    assert_eq!(1, Rc::strong_count(&c));
     {
         let _d = RcCons(4, Rc::clone(&c));
-        println!(
-            "ref count of c after creating _d = {}",
-            Rc::strong_count(&c)
-        );
+        assert_eq!(2, Rc::strong_count(&c));
+
         {
             let _e = RcCons(5, Rc::clone(&c));
-            println!(
-                "ref count of c after creating _e = {}",
-                Rc::strong_count(&c)
-            );
+            assert_eq!(3, Rc::strong_count(&c));
         }
-        println!(
-            "ref count of c after _e is out of scope = {}",
-            Rc::strong_count(&c)
-        );
+        assert_eq!(2, Rc::strong_count(&c));
     }
-    println!(
-        "ref count of c after _d is out of scope = {}",
-        Rc::strong_count(&c)
-    );
+    assert_eq!(1, Rc::strong_count(&c));
 
     let value = Rc::new(RefCell::new(5));
 
@@ -82,26 +71,28 @@ fn main() {
 
     *value.borrow_mut() += 10;
 
-    println!("a after = {:?}", a);
-    println!("b after = {:?}", b);
-    println!("c after = {:?}", c);
+    assert_eq!(15, a.value());
+    assert_eq!(15, b.next().expect("valid next").value());
+    assert_eq!(15, c.next().expect("valid next").value());
 
     let a = Rc::new(RefCyCons(5, RefCell::new(Rc::new(RefCyNil))));
 
-    println!("a initial ref count: {}", Rc::strong_count(&a));
-    println!("a next item: {:?}", a.tail());
+    assert_eq!(1, Rc::strong_count(&a));
+    assert_eq!(&RefCyNil, a.tail().unwrap().borrow().as_ref());
 
     let b = Rc::new(RefCyCons(10, RefCell::new(Rc::clone(&a))));
-    println!("a ref count after b creation: {}", Rc::strong_count(&a));
-    println!("b initial ref count: {}", Rc::strong_count(&b));
-    println!("b next item: {:?}", b.tail());
+
+    assert_eq!(2, Rc::strong_count(&a));
+    assert_eq!(1, Rc::strong_count(&b));
+
+    // println!("b next item: {:?}", b.tail());
 
     if let Some(link) = a.tail() {
         *link.borrow_mut() = Rc::clone(&b)
     }
 
-    println!("a ref count after the change: {}", Rc::strong_count(&a));
-    println!("b ref count after the change: {}", Rc::strong_count(&b));
+    assert_eq!(2, Rc::strong_count(&a));
+    assert_eq!(2, Rc::strong_count(&b));
 
     // Uncomment the next line to see that we have a cycle;
     // it will overflow the stack.
@@ -113,12 +104,13 @@ fn main() {
         children: RefCell::new(vec![]),
     });
 
-    println!("leaf parent = {:?}", leaf.parent.borrow().upgrade());
-    println!(
-        "leaf strong = {}, weak = {}",
-        Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
-    );
+    assert_eq!(1, Rc::strong_count(&leaf));
+    assert_eq!(0, Rc::weak_count(&leaf));
+
+    let res = leaf.parent.borrow().upgrade();
+    assert_eq!("None", format!("{:?}", res));
+
+    assert_eq!(0, Rc::weak_count(&leaf));
 
     {
         let branch = Rc::new(Node {
@@ -126,27 +118,28 @@ fn main() {
             parent: RefCell::new(Weak::new()),
             children: RefCell::new(vec![Rc::clone(&leaf)]),
         });
+        assert_eq!(2, Rc::strong_count(&leaf));
+
+        assert_eq!(1, Rc::strong_count(&branch));
+        assert_eq!(0, Rc::weak_count(&branch));
 
         *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
 
-        println!(
-            "branch strong = {}, weak = {}",
-            Rc::strong_count(&branch),
-            Rc::weak_count(&branch),
-        );
+        assert_eq!(1, Rc::strong_count(&branch));
+        assert_eq!(1, Rc::weak_count(&branch));
 
-        println!(
-            "leaf strong = {}, weak = {}",
-            Rc::strong_count(&leaf),
-            Rc::weak_count(&leaf),
-        );
+        assert_eq!(2, Rc::strong_count(&leaf));
+        assert_eq!(0, Rc::weak_count(&leaf));
+
+        let res = leaf.parent.borrow().upgrade();
+        assert_ne!("None", format!("{:?}", res));
     }
-    println!("leaf parent = {:?}", leaf.parent.borrow().upgrade());
-    println!(
-        "leaf strong = {}, weak = {}",
-        Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
-    );
+
+    let res = leaf.parent.borrow().upgrade();
+    assert_eq!("None", format!("{:?}", res));
+
+    assert_eq!(1, Rc::strong_count(&leaf));
+    assert_eq!(0, Rc::weak_count(&leaf));
 }
 
 enum List {
@@ -164,6 +157,7 @@ mod rc {
 }
 
 mod rccell {
+    use crate::rccell::List::{Cons, Nil};
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -172,6 +166,22 @@ mod rccell {
         Cons(Rc<RefCell<i32>>, Rc<List>),
         Nil,
     }
+
+    impl List {
+        pub fn value(&self) -> i32 {
+            match self {
+                Cons(v, _) => *v.borrow(),
+                Nil => 0,
+            }
+        }
+
+        pub fn next(&self) -> Option<&Rc<List>> {
+            match self {
+                Cons(_, item) => Some(item),
+                Nil => None,
+            }
+        }
+    }
 }
 
 mod refcycle {
@@ -179,7 +189,7 @@ mod refcycle {
     use std::cell::RefCell;
     use std::rc::Rc;
 
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     pub enum List {
         Cons(i32, RefCell<Rc<List>>),
         Nil,

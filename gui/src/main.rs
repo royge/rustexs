@@ -27,7 +27,7 @@ struct SelectBox {
 impl Draw for SelectBox {
     fn draw(&self) {
         println!(
-            "w: {:?}, h: {:?}, opt: {:?}",
+            "SelectBox => width: {:?}, height: {:?}, options: {:?}",
             self.width, self.height, self.options,
         )
     }

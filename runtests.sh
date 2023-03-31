@@ -12,4 +12,6 @@ cd klosur && cargo test --verbose --workspace && cd ../
 cd iterators && cargo test --verbose --workspace && cd ../
 cd smartptr && cargo test --verbose --workspace && cd ../
 cd smartptr && cargo run && cd ../
+cd blog && cargo run && cd ../
+cd gui && cargo run && cd ../
 cd patmat && cargo run && cd ../

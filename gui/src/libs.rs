@@ -23,7 +23,7 @@ pub struct Button {
 impl Draw for Button {
     fn draw(&self) {
         println!(
-            "width: {:?}, height: {:?}, label: {:?}",
+            "Button => width: {:?}, height: {:?}, label: {:?}",
             self.width, self.height, self.label,
         );
     }
