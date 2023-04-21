@@ -16,3 +16,4 @@ cd blog && cargo run && cd ../
 cd gui && cargo run && cd ../
 cd patmat && cargo run && cd ../
 cd fnptr && cargo run && cd ../
+cd neotype && cargo run && cd ../
