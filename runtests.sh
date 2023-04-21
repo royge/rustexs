@@ -17,3 +17,4 @@ cd gui && cargo run && cd ../
 cd patmat && cargo run && cd ../
 cd fnptr && cargo run && cd ../
 cd neotype && cargo run && cd ../
+cd overloaded && cargo run && cd ../
