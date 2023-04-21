@@ -15,3 +15,4 @@ cd smartptr && cargo run && cd ../
 cd blog && cargo run && cd ../
 cd gui && cargo run && cd ../
 cd patmat && cargo run && cd ../
+cd fnptr && cargo run && cd ../
