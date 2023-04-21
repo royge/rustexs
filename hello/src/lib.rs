@@ -3,6 +3,13 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::net::TcpListener;
+use std::net::TcpStream;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::fs;
+use std::io::prelude::*;
+use std::io::{Write};
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct ThreadPool {
@@ -162,4 +169,89 @@ mod tests {
         let result = worker.thread.take().expect("Can't take").join();
         assert!(result.is_ok());
     }
+}
+
+pub fn run_server(
+    addr: &str,
+    running: Arc<AtomicBool>,
+) -> Result<(), Box<dyn Error>> {
+    let listener = TcpListener::bind(addr)?;
+
+    if let Err(err) = listener.set_nonblocking(true) {
+        return Err(Box::new(err));
+    }
+
+    let pool = ThreadPool::new(8);
+
+    let thread = thread::spawn(move || {
+        match pool {
+            Ok(pool) => loop {
+                match listener.accept() {
+                    Ok((stream, _)) => {
+                        pool.execute(move || handle_connection(stream));
+                    }
+                    Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                        if !running.load(Ordering::SeqCst) {
+                            break;
+                        }
+                        continue;
+                    }
+                    Err(_) => {
+                        break;
+                    }
+                }
+            },
+            Err(err) => {
+                println!("Unable to initial pool properly, {err}");
+            }
+        };
+    });
+
+    if let Err(_) = thread.join() {
+        return Err("Unable to join thread".into());
+    }
+
+    Ok(())
+}
+
+fn handle_connection(mut stream: TcpStream) {
+    let mut buffer = [0; 1024];
+
+    loop {
+        match stream.read(&mut buffer) {
+            Ok(_) => {
+                break;
+            }
+            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                // Do nothing, continue looping
+                continue;
+            }
+            Err(err) => {
+                println!("Error: {}", err);
+                break;
+            }
+        }
+    }
+
+    let get = b"GET / HTTP/1.1\r\n";
+    let sleep = b"GET /sleep HTTP/1.1\r\n";
+
+    let (status_line, filename) = if buffer.starts_with(get) {
+        ("HTTP/1.1 200 OK", "hello.html")
+    } else if buffer.starts_with(sleep) {
+        thread::sleep(Duration::from_secs(5));
+        ("HTTP/1.1 200 OK", "wakeup.html")
+    } else {
+        ("HTTP/1.1 404 NOT FOUND", "404.html")
+    };
+
+    let contents = fs::read_to_string(filename).unwrap();
+    let response = format!(
+        "{}\r\nContent-Length: {}\r\n\r\n{}",
+        status_line,
+        contents.len(),
+        contents,
+    );
+    stream.write(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
 }
